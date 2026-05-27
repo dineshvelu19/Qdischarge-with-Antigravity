@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qdischarge — Physician Workflow Platform | QTV</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+--ink:#0B1221;
+--ink2:#1E2D45;
+--ink3:#3D5068;
+--mist:#F4F7FB;
+--mist2:#E8EEF6;
+--border:#D4DCEA;
+--w:#fff;
+--teal:#0D9488;
+--teal-d:#0A6E64;
+--teal-l:#CCFBF1;
+--teal-m:#14B8A6;
+--blue:#1D4ED8;
+--blue-l:#DBEAFE;
+--amber:#B45309;
+--amber-l:#FEF3C7;
+--red:#B91C1C;
+--red-l:#FEE2E2;
+--green:#065F46;
+--green-l:#D1FAE5;
+--purple:#6D28D9;
+--purple-l:#EDE9FE;
+}
+
+html{scroll-behavior:smooth}
+body{font-family:'Sora',sans-serif;background:var(--ink);color:var(--ink);min-height:100vh;overflow-x:hidden}
+
+/* ── SHELL ── */
+.shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--ink2);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.06)}
+.sb-header{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.sb-logo-mark{width:36px;height:36px;background:var(--teal-m);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.sb-logo-mark svg{width:20px;height:20px;fill:none;stroke:white;stroke-width:2}
+.sb-product{font-family:'Playfair Display',serif;font-size:18px;color:#fff;letter-spacing:-0.01em}
+.sb-version{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--teal-m);background:rgba(20,184,166,0.15);padding:2px 7px;border-radius:3px;border:1px solid rgba(20,184,166,0.25)}
+.sb-tagline{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:0.06em;text-transform:uppercase;margin-top:4px}
+
+.patient-card{margin:14px 14px 0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:10px;padding:12px 14px}
+.pc-label{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.pc-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px}
+.pc-details{font-size:11px;color:rgba(255,255,255,0.45);line-height:1.6}
+.pc-status{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--teal-m);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.pc-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal-m);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.phase-nav{padding:16px 14px;flex:1}
+.pn-label{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:10px;padding:0 6px;font-family:'JetBrains Mono',monospace}
+.phase-btn{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:none;background:transparent;cursor:pointer;transition:all 0.18s;text-align:left;margin-bottom:3px}
+.phase-btn:hover{background:rgba(255,255,255,0.06)}
+.phase-btn.active{background:rgba(13,148,136,0.18);border:1px solid rgba(13,148,136,0.3)}
+.pb-num{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;flex-shrink:0;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);transition:all 0.18s}
+.phase-btn.active .pb-num{background:var(--teal-m);color:#fff}
+.phase-btn.done .pb-num{background:rgba(6,95,70,0.5);color:#6EE7B7}
+.pb-text{flex:1}
+.pb-title{font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);line-height:1.3;transition:color 0.18s}
+.phase-btn.active .pb-title{color:#fff}
+.phase-btn.done .pb-title{color:rgba(255,255,255,0.4)}
+.pb-time{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.25);margin-top:1px}
+.phase-btn.active .pb-time{color:var(--teal-m)}
+.pb-check{font-size:12px;color:#6EE7B7;opacity:0}
+.phase-btn.done .pb-check{opacity:1}
+
+.dept-status{margin:0 14px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px}
+.ds-label{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.ds-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.ds-dept{font-size:11px;color:rgba(255,255,255,0.45);display:flex;align-items:center;gap:6px}
+.ds-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ds-dot.pending{background:rgba(255,255,255,0.15)}
+.ds-dot.active{background:#FCD34D;animation:pulse 1.5s infinite}
+.ds-dot.done{background:#6EE7B7}
+.ds-state{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.3)}
+.ds-state.done{color:#6EE7B7}
+
+.sb-footer{padding:14px;border-top:1px solid rgba(255,255,255,0.06)}
+.sf-qtv{font-size:10px;color:rgba(255,255,255,0.25);line-height:1.6}
+.sf-qtv a{color:var(--teal-m);text-decoration:none;font-weight:500}
+
+/* ── MAIN CONTENT ── */
+.content{background:var(--mist);overflow-y:auto;height:100vh}
+
+/* TOP BAR */
+.topbar{background:var(--w);border-bottom:1px solid var(--border);padding:0 36px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.tb-breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink3)}
+.tb-sep{color:var(--border);font-size:16px}
+.tb-current{font-weight:600;color:var(--ink)}
+.tb-actions{display:flex;align-items:center;gap:10px}
+.tb-badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:4px 10px;border-radius:4px;font-weight:500}
+.tb-nabh{background:var(--teal-l);color:var(--teal-d)}
+.tb-fhir{background:var(--blue-l);color:var(--blue)}
+.tb-doc{background:var(--ink);color:#fff;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:500;border:none;cursor:pointer;font-family:'Sora',sans-serif}
+
+/* PHASE PANELS */
+.phase-panel{display:none;padding:32px 36px 48px;animation:fadeUp 0.3s ease}
+.phase-panel.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.phase-hero{background:var(--w);border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:24px;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center}
+.ph-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.ph-body{}
+.ph-phase-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal-d);margin-bottom:4px}
+.ph-title{font-family:'Playfair Display',serif;font-size:26px;color:var(--ink);letter-spacing:-0.01em;margin-bottom:4px}
+.ph-desc{font-size:13px;color:var(--ink3);line-height:1.7;max-width:580px}
+.ph-time-block{text-align:right;flex-shrink:0}
+.ph-time-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500;color:var(--teal-d);display:block}
+.ph-time-label{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+
+/* TWO-COL GRID */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.one-col{margin-bottom:20px}
+
+/* CARDS */
+.card{background:var(--w);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-head-icon{font-size:14px}
+.card-head-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);font-family:'JetBrains Mono',monospace}
+.card-body{padding:20px}
+
+/* STEPS */
+.step-list{list-style:none}
+.step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
+.step:last-child{margin-bottom:0}
+.step-marker{width:22px;height:22px;border-radius:50%;background:var(--teal-l);border:2px solid var(--teal-m);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-marker span{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--teal-d)}
+.step-text{font-size:13px;color:var(--ink2);line-height:1.75}
+.step-text strong{color:var(--ink);font-weight:600}
+
+/* CODE CHIPS */
+code{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--mist);color:var(--teal-d);padding:2px 7px;border-radius:4px;border:1px solid var(--border);white-space:nowrap}
+
+/* FLOW ARROWS */
+.flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.flow-step{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--mist2);color:var(--ink2);padding:4px 10px;border-radius:5px;border:1px solid var(--border)}
+.flow-arr{color:var(--teal-m);font-weight:700;font-size:13px;flex-shrink:0}
+
+/* ALERT BOXES */
+.alert{border-radius:8px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;font-size:13px;line-height:1.7}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.alert-clinical{background:var(--teal-l);border:1px solid rgba(13,148,136,0.25);color:var(--teal-d)}
+.alert-compliance{background:var(--amber-l);border:1px solid rgba(180,83,9,0.2);color:var(--amber)}
+.alert-warning{background:var(--red-l);border:1px solid rgba(185,28,28,0.2);color:var(--red)}
+.alert-success{background:var(--green-l);border:1px solid rgba(6,95,70,0.2);color:var(--green)}
+
+/* DEPT GRID */
+.dept-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dept-tile{border:1px solid var(--border);border-radius:8px;padding:14px 16px;background:var(--mist)}
+.dt-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.dt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dt-name{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink3)}
+.dt-items{list-style:none}
+.dt-item{font-size:12px;color:var(--ink3);padding:3px 0;padding-left:14px;position:relative;line-height:1.5}
+.dt-item::before{content:'›';position:absolute;left:2px;color:var(--teal-m);font-weight:700}
+
+/* STATUS INDICATORS */
+.status-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.status-row:last-child{border-bottom:none}
+.sr-left{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink2)}
+.sr-icon{font-size:14px}
+.sr-badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 9px;border-radius:12px;font-weight:500}
+.sr-badge.cleared{background:var(--green-l);color:var(--green)}
+.sr-badge.progress{background:var(--amber-l);color:var(--amber)}
+.sr-badge.pending{background:var(--mist2);color:var(--ink3)}
+
+/* CONFIRM STATE */
+.confirm-block{background:var(--green-l);border:1.5px solid rgba(6,95,70,0.3);border-radius:10px;padding:20px 22px;margin-top:20px;display:flex;gap:14px;align-items:flex-start}
+.cb-icon{width:36px;height:36px;border-radius:50%;background:#065F46;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;color:#fff;font-weight:700}
+.cb-body h4{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#065F46;margin-bottom:5px}
+.cb-body p{font-size:13px;color:#064E3B;line-height:1.7}
+.cb-body code{background:rgba(6,95,70,0.1);border-color:rgba(6,95,70,0.2);color:#065F46}
+
+/* ANALYTICS METRICS */
+.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.metric-tile{background:var(--w);border:1px solid var(--border);border-radius:10px;padding:18px 16px;text-align:center}
+.mt-val{font-family:'Playfair Display',serif;font-size:30px;color:var(--teal-d);display:block;margin-bottom:4px}
+.mt-label{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.07em;line-height:1.4}
+
+/* HEATMAP */
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin:10px 0}
+.hm-cell{height:28px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:500;color:rgba(255,255,255,0.8)}
+.hm-low{background:#ccfbf1}
+.hm-low span{color:#0d9488}
+.hm-mid{background:#5eead4}
+.hm-mid span{color:#0f766e}
+.hm-high{background:#0d9488}
+.hm-high span{color:#ccfbf1}
+.hm-peak{background:#0f766e}
+.hm-peak span{color:#ccfbf1}
+
+/* NOTIFICATION CHANNEL CARDS */
+.notif-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.notif-card{border:1px solid var(--border);border-radius:8px;padding:14px 16px;background:var(--mist)}
+.nc-header{font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+
+/* PROGRESS TRACKER TOP */
+.phase-progress{display:flex;align-items:center;gap:0;margin-bottom:24px;background:var(--w);border:1px solid var(--border);border-radius:10px;padding:0;overflow:hidden}
+.pp-step{flex:1;padding:12px 8px;text-align:center;font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:0.05em;color:rgba(255,255,255,0.4);background:var(--ink3);border-right:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:all 0.2s;position:relative}
+.pp-step:last-child{border-right:none}
+.pp-step.active{background:var(--teal-m);color:#fff;font-weight:500}
+.pp-step.done{background:var(--teal-d);color:rgba(255,255,255,0.7)}
+.pp-step:hover:not(.active){background:var(--ink2)}
+
+/* NEXT PHASE BTN */
+.next-btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border:none;padding:12px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.2s;margin-top:20px}
+.next-btn:hover{background:var(--teal-d)}
+.next-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5}
+
+/* COMPLIANCE TABLE */
+.comp-table{width:100%;border-collapse:collapse;font-size:12px}
+.comp-table th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink3);padding:8px 12px;background:var(--mist);border-bottom:2px solid var(--border);font-family:'JetBrains Mono',monospace}
+.comp-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:top;line-height:1.5}
+.comp-table tr:last-child td{border-bottom:none}
+.check-green{color:var(--teal-m);font-weight:700;font-size:14px}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+.shell{grid-template-columns:1fr}
+.sidebar{display:none}
+.two-col,.dept-grid,.notif-grid,.metrics-row{grid-template-columns:1fr}
+.phase-hero{grid-template-columns:1fr;gap:12px}
+.ph-time-block{text-align:left}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sb-header">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">
+        <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      </div>
+      <div>
+        <div class="sb-product">Qdischarge</div>
+        <span class="sb-version">v2.0</span>
+      </div>
+    </div>
+    <div class="sb-tagline">Physician Workflow Platform · QTV</div>
+  </div>
+
+  <div class="patient-card">
+    <div class="pc-label">Active Patient</div>
+    <div class="pc-name">Rajesh Kumar, 58M</div>
+    <div class="pc-details">
+      Ward 4B · Bed 12<br>
+      Adm: T2DM + STEMI (Treated)<br>
+      LOS: 6 days · Dr. S. Menon
+    </div>
+    <div class="pc-status">DISCHARGE IN PROGRESS</div>
+  </div>
+
+  <nav class="phase-nav">
+    <div class="pn-label">Clinical Phases</div>
+    <button class="phase-btn active" onclick="showPhase(1,this)">
+      <div class="pb-num">01</div>
+      <div class="pb-text">
+        <div class="pb-title">Discharge Decision &amp; Initiation</div>
+        <div class="pb-time">3–5 min</div>
+      </div>
+      <span class="pb-check">✓</span>
+    </button>
+    <button class="phase-btn" onclick="showPhase(2,this)">
+      <div class="pb-num">02</div>
+      <div class="pb-text">
+        <div class="pb-title">AI Summary Generation</div>
+        <div class="pb-time">5–8 min</div>
+      </div>
+      <span class="pb-check">✓</span>
+    </button>
+    <button class="phase-btn" onclick="showPhase(3,this)">
+      <div class="pb-num">03</div>
+      <div class="pb-text">
+        <div class="pb-title">Multi-Dept Coordination</div>
+        <div class="pb-time">1–2 min monitor</div>
+      </div>
+      <span class="pb-check">✓</span>
+    </button>
+    <button class="phase-btn" onclick="showPhase(4,this)">
+      <div class="pb-num">04</div>
+      <div class="pb-text">
+        <div class="pb-title">Compliance &amp; Audit Trail</div>
+        <div class="pb-time">Automated</div>
+      </div>
+      <span class="pb-check">✓</span>
+    </button>
+    <button class="phase-btn" onclick="showPhase(5,this)">
+      <div class="pb-num">05</div>
+      <div class="pb-text">
+        <div class="pb-title">Patient Notification</div>
+        <div class="pb-time">1 min + automated</div>
+      </div>
+      <span class="pb-check">✓</span>
+    </button>
+    <button class="phase-btn" onclick="showPhase(6,this)">
+      <div class="pb-num">06</div>
+      <div class="pb-text">
+        <div class="pb-title">Analytics &amp; Improvement</div>
+        <div class="pb-time">Weekly 10 min</div>
+      </div>
+      <span class="pb-check">✓</span>
+    </button>
+  </nav>
+
+  <div class="dept-status">
+    <div class="ds-label">Live Dept. Status</div>
+    <div class="ds-row"><span class="ds-dept"><span class="ds-dot active" id="ds-pharm"></span>Pharmacy</span><span class="ds-state" id="ds-pharm-t">In Progress</span></div>
+    <div class="ds-row"><span class="ds-dept"><span class="ds-dot active" id="ds-nurs"></span>Nursing</span><span class="ds-state" id="ds-nurs-t">In Progress</span></div>
+    <div class="ds-row"><span class="ds-dept"><span class="ds-dot pending" id="ds-bill"></span>Billing</span><span class="ds-state" id="ds-bill-t">Pending</span></div>
+    <div class="ds-row"><span class="ds-dept"><span class="ds-dot pending" id="ds-care"></span>Care Coord.</span><span class="ds-state" id="ds-care-t">Pending</span></div>
+  </div>
+
+  <div class="sb-footer">
+    <div class="sf-qtv">
+      A QTV Product · <a href="https://qtvhr.com">qtvhr.com</a><br>
+      Dinesh Velusamy · Dr. JaiKanna<br>
+      Quench Techno Valley · Bengaluru<br>
+      <em style="color:rgba(255,255,255,0.2);font-size:9px">Empowering Talent. Enabling Growth.</em>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="content">
+  <div class="topbar">
+    <div class="tb-breadcrumb">
+      <span>Ward 4B</span>
+      <span class="tb-sep">/</span>
+      <span>Rajesh Kumar</span>
+      <span class="tb-sep">/</span>
+      <span class="tb-current">Discharge Workflow</span>
+    </div>
+    <div class="tb-actions">
+      <span class="tb-badge tb-nabh">NABH COP.9</span>
+      <span class="tb-badge tb-fhir">HL7 FHIR R4</span>
+    </div>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase-panel active" id="phase-1">
+    <div class="phase-hero">
+      <div class="ph-icon" style="background:#CCFBF1">🩺</div>
+      <div class="ph-body">
+        <div class="ph-phase-label">Phase 01 of 06</div>
+        <div class="ph-title">Discharge Decision &amp; Initiation</div>
+        <div class="ph-desc">Confirm clinical discharge readiness, enter the formal discharge order, log the Estimated Discharge Time (EDT), and trigger simultaneous real-time task routing across all departments.</div>
+      </div>
+      <div class="ph-time-block">
+        <span class="ph-time-val">3–5</span>
+        <div class="ph-time-label">Min physician time</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">☑️</span><span class="card-head-title">Clinical Discharge Criteria</span></div>
+        <div class="card-body">
+          <div class="alert alert-clinical"><span class="alert-icon">ℹ</span><div>Confirm all criteria before tapping <code>Initiate Discharge</code>. This clinical checkpoint is the physician's sole responsibility — Qdischarge validates documentation, not clinical judgment.</div></div>
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text"><strong>Hemodynamic stability confirmed</strong> — HR, BP, SpO₂ within acceptable range for ≥12h. Verify in the EHR vitals trend (auto-visible in Phase 2 AI draft).</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text"><strong>Primary diagnosis resolved or controlled</strong> — STEMI treated, EF documented. T2DM HbA₁c and discharge glycemic target counselled.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text"><strong>Tolerating oral intake &amp; medications</strong> — no IV-dependent therapy remaining at discharge.</div></li>
+            <li class="step"><div class="step-marker"><span>4</span></div><div class="step-text"><strong>Safe discharge environment confirmed</strong> — social history reviewed, caregiver available, home supports adequate.</div></li>
+            <li class="step"><div class="step-marker"><span>5</span></div><div class="step-text">Complete final assessment note in EHR/HIS before proceeding — the AI module in Phase 2 pulls this note automatically.</div></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">⚡</span><span class="card-head-title">Discharge Order Entry</span></div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Open Qdischarge on ward workstation or mobile. Navigate to patient <strong>Rajesh Kumar</strong> on your <code>Active Ward List</code>.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Tap <code>Initiate Discharge</code> on the patient's active case card. The <strong>Discharge Order Panel</strong> opens.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Complete the panel fields:
+              <div class="flow" style="margin-top:8px">
+                <span class="flow-step">Discharge Disposition</span>
+                <span class="flow-arr">→</span>
+                <span class="flow-step">Enter EDT</span>
+                <span class="flow-arr">→</span>
+                <span class="flow-step">Transport Mode</span>
+                <span class="flow-arr">→</span>
+                <span class="flow-step">Confirm</span>
+              </div>
+            </div></li>
+            <li class="step"><div class="step-marker"><span>4</span></div><div class="step-text"><strong>EDT is mandatory.</strong> System default is 4h from initiation. Your entered EDT is tracked against actual discharge time for TAT analytics in Phase 6.</div></li>
+            <li class="step"><div class="step-marker"><span>5</span></div><div class="step-text">Upon <code>Confirm</code>, Qdischarge simultaneously dispatches discharge trigger notifications to <strong>Pharmacy, Nursing, Billing, and Bed Management</strong> via HL7 FHIR R4 messaging — no further physician action required.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card one-col">
+      <div class="card-head"><span class="card-head-icon">📡</span><span class="card-head-title">Real-Time Multi-Department Trigger — What Fires on Confirm</span></div>
+      <div class="card-body">
+        <div class="dept-grid">
+          <div class="dept-tile"><div class="dt-header"><span class="dt-dot" style="background:#0D9488"></span><span class="dt-name">Pharmacy</span></div><ul class="dt-items"><li class="dt-item">Discharge medication list transmitted</li><li class="dt-item">Reconciliation task assigned</li><li class="dt-item">Alert: pending drug interactions check</li></ul></div>
+          <div class="dept-tile"><div class="dt-header"><span class="dt-dot" style="background:#1D4ED8"></span><span class="dt-name">Nursing</span></div><ul class="dt-items"><li class="dt-item">Final vitals check queued</li><li class="dt-item">IV removal &amp; wound care assigned</li><li class="dt-item">Patient education task created</li></ul></div>
+          <div class="dept-tile"><div class="dt-header"><span class="dt-dot" style="background:#B45309"></span><span class="dt-name">Billing</span></div><ul class="dt-items"><li class="dt-item">Insurance pre-auth verification triggered</li><li class="dt-item">Final bill generation initiated</li><li class="dt-item">TPA/co-pay status flagged</li></ul></div>
+          <div class="dept-tile"><div class="dt-header"><span class="dt-dot" style="background:#6D28D9"></span><span class="dt-name">Bed Management</span></div><ul class="dt-items"><li class="dt-item">Bed 4B-12 flagged for turnover</li><li class="dt-item">Housekeeping notified</li><li class="dt-item">Admission waitlist updated</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-block">
+      <div class="cb-icon">✓</div>
+      <div class="cb-body">
+        <h4>Phase 1 Completion State</h4>
+        <p>Your responsibility in Phase 1 is complete when the patient's case card displays <code>DISCHARGE IN PROGRESS — EDT LOGGED</code> and the Discharge Status Board shows all four departments with task assignments confirmed. Zero phone calls required. Advance to Phase 2.</p>
+      </div>
+    </div>
+
+    <button class="next-btn" onclick="showPhase(2,document.querySelectorAll('.phase-btn')[1])">
+      Proceed to Phase 2: AI Summary Generation
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase-panel" id="phase-2">
+    <div class="phase-hero">
+      <div class="ph-icon" style="background:#DBEAFE">🤖</div>
+      <div class="ph-body">
+        <div class="ph-phase-label">Phase 02 of 06</div>
+        <div class="ph-title">AI-Assisted Discharge Summary Generation</div>
+        <div class="ph-desc">The AI module auto-drafts the complete discharge summary from your integrated EHR/HIS. Your role: review every section, apply clinical judgment, confirm ICD coding, and sign digitally.</div>
+      </div>
+      <div class="ph-time-block">
+        <span class="ph-time-val">5–8</span>
+        <div class="ph-time-label">Min physician time</div>
+      </div>
+    </div>
+
+    <div class="card one-col">
+      <div class="card-head"><span class="card-head-icon">🔄</span><span class="card-head-title">AI Auto-Draft — Data Sources Pulled via FHIR R4</span></div>
+      <div class="card-body">
+        <div class="dept-grid">
+          <div class="dept-tile"><div class="dt-header"><span class="dt-dot" style="background:#0D9488"></span><span class="dt-name">Clinical Data</span></div><ul class="dt-items"><li class="dt-item">Admission &amp; final diagnosis (ICD-10)</li><li class="dt-item">SNOMED CT code mapping</li><li class="dt-item">Procedure notes &amp; op summaries</li><li class="dt-item">Consultant review entries</li></ul></div>
+          <div class="dept-tile"><div class="dt-header"><span class="dt-dot" style="background:#1D4ED8"></span><span class="dt-name">Investigations</span></div><ul class="dt-items"><li class="dt-item">Lab results with trend analysis</li><li class="dt-item">ECG &amp; imaging reports</li><li class="dt-item">Inpatient vitals trend charts</li><li class="dt-item">Microbiology &amp; culture results</li></ul></div>
+          <div class="dept-tile"><div class="dt-header"><span class="dt-dot" style="background:#B45309"></span><span class="dt-name">Medications</span></div><ul class="dt-items"><li class="dt-item">Admission medication list</li><li class="dt-item">Inpatient medication changes</li><li class="dt-item">Allergy &amp; ADR flags</li><li class="dt-item">Discharge Rx (pre-reconciliation)</li></ul></div>
+          <div class="dept-tile"><div class="dt-header"><span class="dt-dot" style="background:#6D28D9"></span><span class="dt-name">Care Pathway</span></div><ul class="dt-items"><li class="dt-item">Nursing care documentation</li><li class="dt-item">Physio / OT session notes</li><li class="dt-item">Dietitian recommendations</li><li class="dt-item">Length of stay calculation</li></ul></div>
+        </div>
+        <div class="alert alert-clinical" style="margin-top:14px;margin-bottom:0"><span class="alert-icon">⏱</span><div>AI draft is generated within <strong>60–90 seconds</strong> of discharge initiation. Navigate to <code>Summary Review</code> on the patient's discharge panel to access the draft.</div></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">✏️</span><span class="card-head-title">Physician Review Workflow</span></div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Open <code>Summary Review</code>. The draft appears section-by-section: <strong>Chief Complaint → Hospital Course → Investigations → Procedures → Discharge Medications → Follow-up Instructions → Condition at Discharge</strong>.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Every field is editable. Tap any section to enter edit mode. <strong>Override AI content wherever clinical judgment differs.</strong> All overrides are logged with your credentials and timestamp in the audit trail.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Review the <code>ICD-10 / SNOMED CT Suggestion Panel</code> in the right sidebar. Accept, modify, or reject each code suggestion. Accepted codes are embedded in the document and transmitted to billing for DRG/package mapping.</div></li>
+            <li class="step"><div class="step-marker"><span>4</span></div><div class="step-text">Verify the <code>Medication Reconciliation Preview</code> — side-by-side comparison of admission vs. discharge medications with change flags. Do not finalize until pharmacy confirms reconciliation (Phase 3 status indicator).</div></li>
+            <li class="step"><div class="step-marker"><span>5</span></div><div class="step-text">Tap <code>Sign Discharge Summary</code>. Confirm credentials (PIN or biometric). Digital signature applied with timestamp, user ID, and session metadata.</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">⚖️</span><span class="card-head-title">Clinical Accountability &amp; Sign-Off Gate</span></div>
+        <div class="card-body">
+          <div class="alert alert-compliance"><span class="alert-icon">⚠</span><div><strong>The AI draft is a decision-support tool.</strong> Clinical accountability for the discharge summary rests entirely with the reviewing and signing physician. The AI module has no autonomous sign authority under any configuration of Qdischarge.</div></div>
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">If any mandatory field is unpopulated, a <code>Missing Fields Alert</code> blocks sign-off and lists each incomplete item — enforcing NABH Std. COP.9 documentation completeness before finalization.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Post-sign amendments require a separate <code>Addendum</code> workflow. Original signed entries are never overwritten — amendments are clearly marked with a version chain in the audit trail.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">The signed discharge summary constitutes a formal medical record under the Indian Evidence Act (electronic records provisions) and applicable medico-legal standards.</div></li>
+          </ul>
+          <div class="alert alert-warning" style="margin-top:12px;margin-bottom:0"><span class="alert-icon">🔒</span><div>Once signed, the summary status changes to <code>LOCKED — PHYSICIAN SIGNED</code>. The document is transmitted to downstream departments and the patient portal simultaneously.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-block">
+      <div class="cb-icon">✓</div>
+      <div class="cb-body">
+        <h4>Phase 2 Completion State</h4>
+        <p>Phase 2 is complete when the summary displays <code>SIGNED — PENDING DEPT. CLEARANCE</code>. The document is locked, transmitted to all departments, and audit-logged. Proceed to monitor Phase 3 coordination from the dashboard — no further physician documentation action required in this phase.</p>
+      </div>
+    </div>
+    <button class="next-btn" onclick="showPhase(3,document.querySelectorAll('.phase-btn')[2])">Proceed to Phase 3: Multi-Dept Coordination <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase-panel" id="phase-3">
+    <div class="phase-hero">
+      <div class="ph-icon" style="background:#EDE9FE">🔀</div>
+      <div class="ph-body">
+        <div class="ph-phase-label">Phase 03 of 06</div>
+        <div class="ph-title">Multi-Department Coordination &amp; Handoff</div>
+        <div class="ph-desc">Qdischarge routes all discharge tasks automatically. Your role is supervisory — monitor the unified Coordination Dashboard and intervene only on escalations. Zero phone calls.</div>
+      </div>
+      <div class="ph-time-block">
+        <span class="ph-time-val">1–2</span>
+        <div class="ph-time-label">Min physician monitoring</div>
+      </div>
+    </div>
+
+    <div class="card one-col">
+      <div class="card-head"><span class="card-head-icon">📊</span><span class="card-head-title">Discharge Coordination Dashboard — Live Status</span></div>
+      <div class="card-body">
+        <div class="status-row"><span class="sr-left"><span class="sr-icon">💊</span> Pharmacy — Medication Reconciliation</span><span class="sr-badge progress">IN PROGRESS</span></div>
+        <div class="status-row"><span class="sr-left"><span class="sr-icon">🏥</span> Nursing — Patient Education &amp; Vitals</span><span class="sr-badge progress">IN PROGRESS</span></div>
+        <div class="status-row"><span class="sr-left"><span class="sr-icon">💳</span> Billing — Insurance Pre-Auth &amp; Final Bill</span><span class="sr-badge pending">PENDING</span></div>
+        <div class="status-row"><span class="sr-left"><span class="sr-icon">🤝</span> Care Coordination — Post-Discharge Plan</span><span class="sr-badge pending">PENDING</span></div>
+        <div class="status-row"><span class="sr-left"><span class="sr-icon">🛏</span> Bed Management — Turnover Scheduling</span><span class="sr-badge cleared">CLEARED</span></div>
+        <button class="next-btn" style="margin-top:16px;margin-bottom:0;background:var(--teal-d)" onclick="simulateClearAll()">Simulate: All Departments Clear ↗</button>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">💊</span><span class="card-head-title">Pharmacy Task — Medication Reconciliation</span></div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Pharmacy receives the discharge medication list via FHIR MedicationRequest resource. Reconciliation workflow is assigned to the ward pharmacist automatically.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">If pharmacy raises a <code>Medication Conflict Flag</code> (drug-drug interaction or formulary mismatch), you receive an in-app alert. Tap the flag to review and authorize or modify the order without leaving Qdischarge.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Pharmacist marks status <code>MEDS READY</code> when the discharge prescription pack is prepared and checked. Dashboard updates in real time.</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">🏥</span><span class="card-head-title">Nursing Task — Education &amp; Clearance</span></div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Nursing receives: final vitals check assignment, IV removal and wound care task, and a patient education session task (verbal + written instruction materials).</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Patient education materials are auto-populated from the signed discharge summary — nursing does not re-key information. Language selection is applied here for multilingual print output.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Nurse marks <code>NURSING CLEARED</code> upon completion of all tasks. Discharge checklist is co-signed by nursing in the platform.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">💳</span><span class="card-head-title">Billing — Pre-Auth &amp; Final Bill</span></div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Billing receives ICD-10 codes from the signed summary for DRG/package-based billing. Insurance pre-auth status is auto-checked against the payer database.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">If an <code>Authorization Hold</code> is flagged, discharge can proceed if you tap <code>Clinical Urgency Override</code> with documented justification — logged immutably in the audit trail.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Billing marks <code>BILLING CLEARED</code> when the final bill is generated and co-pay/TPA status confirmed. Patient billing summary is queued for portal delivery.</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">🤝</span><span class="card-head-title">Care Coordination — Post-Discharge Plan</span></div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Care coordinator receives the post-discharge care plan pulled from your follow-up instructions in the discharge summary. Referrals for home care, cardiac rehab, or community support are initiated automatically.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Follow-up appointment slots are presented to the coordinator for pre-booking. Confirmed appointments are written back into the patient portal in real time.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Coordinator marks <code>CARE PLAN READY</code> when all post-discharge arrangements are confirmed.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-block" id="p3-confirm">
+      <div class="cb-icon">✓</div>
+      <div class="cb-body">
+        <h4>Phase 3 Completion State</h4>
+        <p>Phase 3 is complete when all departments show <code>CLEARED</code> on the Coordination Dashboard. The system automatically advances the patient to <code>READY FOR FINAL DISCHARGE</code>. No phone calls, pager messages, or in-person coordination was required from the physician.</p>
+      </div>
+    </div>
+    <button class="next-btn" onclick="showPhase(4,document.querySelectorAll('.phase-btn')[3])">Proceed to Phase 4: Compliance &amp; Audit Trail <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase-panel" id="phase-4">
+    <div class="phase-hero">
+      <div class="ph-icon" style="background:#FEF3C7">📋</div>
+      <div class="ph-body">
+        <div class="ph-phase-label">Phase 04 of 06</div>
+        <div class="ph-title">Compliance, Documentation &amp; Audit Trail</div>
+        <div class="ph-desc">Every physician action is logged immutably. NABH Std. COP.9 compliance is enforced by the platform. Medico-legal documentation completeness is guaranteed before discharge is permitted.</div>
+      </div>
+      <div class="ph-time-block">
+        <span class="ph-time-val">0</span>
+        <div class="ph-time-label">Min physician overhead — automated</div>
+      </div>
+    </div>
+
+    <div class="card one-col">
+      <div class="card-head"><span class="card-head-icon">🔐</span><span class="card-head-title">Immutable Audit Trail — Every Action Logged</span></div>
+      <div class="card-body">
+        <div class="alert alert-compliance"><span class="alert-icon">📌</span><div><strong>NABH Std. COP.9 Alignment:</strong> Qdischarge operationalizes this standard through automated completeness validation, append-only audit logging, and mandatory field enforcement — converting a compliance obligation into a default system behavior.</div></div>
+        <table class="comp-table">
+          <thead><tr><th>Physician Action</th><th>Logged Data</th><th>Tamper-Proof</th></tr></thead>
+          <tbody>
+            <tr><td>Discharge initiation</td><td>Timestamp, User ID, EDT entered, Device IP</td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>AI summary review opened</td><td>Review start time, session token</td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Field edits &amp; overrides</td><td>Field name, old value, new value, user ID, time</td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>ICD-10 code confirmation/rejection</td><td>Code, action, clinical context</td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Digital sign-off</td><td>Biometric/PIN hash, timestamp, document version hash</td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Clinical Urgency Override</td><td>Override type, justification text, time, approver ID</td><td><span class="check-green">✓</span></td></tr>
+            <tr><td>Addendum initiation</td><td>Original version reference, amendment content, new timestamp</td><td><span class="check-green">✓</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">🛡️</span><span class="card-head-title">Pre-Discharge Completeness Validation</span></div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Before allowing finalization, Qdischarge runs a <code>Documentation Completeness Check</code> against the hospital-configured mandatory field list.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Mandatory fields enforced: Final diagnosis + ICD-10 code · Discharge medication list · Follow-up instructions · Condition at discharge · Physician sign-off · Nursing checklist co-sign.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">If any field is missing, a <code>Compliance Alert</code> lists all incomplete items. The <code>Finalize Discharge</code> button remains inactive until every item is resolved.</div></li>
+            <li class="step"><div class="step-marker"><span>4</span></div><div class="step-text">JCI Extended Module adds additional mandatory fields per Joint Commission International standards, including patient education verification and post-discharge follow-up confirmation.</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">⚖️</span><span class="card-head-title">Medico-Legal &amp; Regulatory Alignment</span></div>
+        <div class="card-body">
+          <div class="alert alert-warning"><span class="alert-icon">⚠</span><div>Audit logs are stored in an append-only encrypted data store. No user — including system administrators — can modify or delete entries. This architecture satisfies requirements under the <strong>Indian Evidence Act</strong> (electronic records provisions) and Clinical Establishments Act documentation standards.</div></div>
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Access any patient's audit trail via <code>Case History → Discharge Audit Log</code>. Filter by user, action type, or time range.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Export audit trail as a signed PDF for regulatory submission, NABH internal audit, or legal proceedings — available to authorized users from the case record.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">All data transmitted between Qdischarge, HIS/EHR, and downstream systems uses HL7 FHIR R4 with end-to-end TLS 1.3 encryption and OAuth 2.0 access control.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-block">
+      <div class="cb-icon">✓</div>
+      <div class="cb-body">
+        <h4>Phase 4 Completion State — Continuous</h4>
+        <p>Phase 4 operates continuously across all phases. Your documentation obligation is fulfilled when the Completeness Check shows <code>ALL FIELDS VALIDATED</code> and the summary reads <code>SIGNED &amp; COMPLIANT</code>. The full audit trail is already captured — no separate physician action required.</p>
+      </div>
+    </div>
+    <button class="next-btn" onclick="showPhase(5,document.querySelectorAll('.phase-btn')[4])">Proceed to Phase 5: Patient Notification <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+  </div>
+
+  <!-- PHASE 5 -->
+  <div class="phase-panel" id="phase-5">
+    <div class="phase-hero">
+      <div class="ph-icon" style="background:#D1FAE5">📲</div>
+      <div class="ph-body">
+        <div class="ph-phase-label">Phase 05 of 06</div>
+        <div class="ph-title">Patient Notification &amp; Portal Handoff</div>
+        <div class="ph-desc">One physician action — tap Finalize &amp; Notify — triggers the complete patient communication sequence across SMS, WhatsApp, portal, and push in the patient's preferred language.</div>
+      </div>
+      <div class="ph-time-block">
+        <span class="ph-time-val">1</span>
+        <div class="ph-time-label">Min physician action, then automated</div>
+      </div>
+    </div>
+
+    <div class="card one-col">
+      <div class="card-head"><span class="card-head-icon">▶️</span><span class="card-head-title">Trigger — Finalize &amp; Notify Patient</span></div>
+      <div class="card-body">
+        <ul class="step-list">
+          <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Confirm all departments show <code>CLEARED</code> on the Coordination Dashboard (Phase 3).</div></li>
+          <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Tap <code>Finalize &amp; Notify Patient</code> on the discharge panel. This single action triggers the full patient-facing communication sequence.</div></li>
+          <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Qdischarge dispatches notifications simultaneously to: patient's registered mobile (SMS + WhatsApp) and registered caregiver's contact if designated.</div></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">📬</span><span class="card-head-title">Multi-Channel Notification Sequence</span></div>
+        <div class="card-body">
+          <div class="notif-grid">
+            <div class="notif-card"><div class="nc-header">📱 SMS</div><ul class="dt-items"><li class="dt-item">Discharge confirmation message</li><li class="dt-item">Patient portal secure access link</li><li class="dt-item">Next appointment date &amp; time</li><li class="dt-item">Hospital emergency contact</li></ul></div>
+            <div class="notif-card"><div class="nc-header">💬 WhatsApp</div><ul class="dt-items"><li class="dt-item">Discharge instructions PDF</li><li class="dt-item">Medication schedule with timings</li><li class="dt-item">Diet &amp; activity restrictions</li><li class="dt-item">Red-flag symptom list</li></ul></div>
+            <div class="notif-card"><div class="nc-header">🌐 Patient Portal</div><ul class="dt-items"><li class="dt-item">Complete discharge summary (secure)</li><li class="dt-item">Lab reports &amp; imaging links</li><li class="dt-item">Follow-up appointment booking</li><li class="dt-item">Billing summary &amp; receipt</li></ul></div>
+            <div class="notif-card"><div class="nc-header">🔔 App Push</div><ul class="dt-items"><li class="dt-item">Discharge confirmed alert</li><li class="dt-item">Medication reminder schedule</li><li class="dt-item">7-day &amp; 30-day check-in prompts</li><li class="dt-item">Patient feedback survey</li></ul></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">🌍</span><span class="card-head-title">Health Literacy &amp; Language Alignment</span></div>
+        <div class="card-body">
+          <div class="alert alert-clinical"><span class="alert-icon">🗣</span><div>Qdischarge delivers all patient-facing materials in the patient's registered preferred language — at lay-reader reading level, distinct from the clinical summary delivered to treating physicians.</div></div>
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Supported languages (configurable per hospital): <strong>English, Tamil, Hindi, Kannada, Telugu, Malayalam, Marathi</strong>. Language is set on patient registration — no physician action required at discharge.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Medication reminders auto-scheduled in the portal and WhatsApp based on discharge prescription timings from Phase 2. No separate setup required from physician or nursing.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Patients without smartphone access are flagged <code>Non-Digital</code>. Qdischarge auto-creates a nursing task: <code>Print &amp; Hand Discharge Pack</code> — printed materials in the patient's language.</div></li>
+            <li class="step"><div class="step-marker"><span>4</span></div><div class="step-text">Follow-up appointment booking prompt auto-generated in the portal from your follow-up instruction text in the discharge summary. If hospital appointment management is integrated, the slot can be pre-confirmed before the patient leaves the ward.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-block">
+      <div class="cb-icon">✓</div>
+      <div class="cb-body">
+        <h4>Phase 5 Completion State</h4>
+        <p>Phase 5 is complete when the patient record shows <code>PATIENT NOTIFIED — PORTAL ACTIVE</code>. All communications dispatched. Discharge summary live in patient portal. Case status: <code>DISCHARGED — AWAITING PHYSICAL EXIT</code>. Your clinical involvement is complete.</p>
+      </div>
+    </div>
+    <button class="next-btn" onclick="showPhase(6,document.querySelectorAll('.phase-btn')[5])">Proceed to Phase 6: Analytics &amp; Improvement <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+  </div>
+
+  <!-- PHASE 6 -->
+  <div class="phase-panel" id="phase-6">
+    <div class="phase-hero">
+      <div class="ph-icon" style="background:#FEE2E2">📈</div>
+      <div class="ph-body">
+        <div class="ph-phase-label">Phase 06 of 06</div>
+        <div class="ph-title">Post-Discharge Analytics &amp; Continuous Improvement</div>
+        <div class="ph-desc">QTV's quality-first philosophy embedded as data. Your personal performance dashboard converts discharge events into actionable clinical intelligence. Review weekly, act continuously.</div>
+      </div>
+      <div class="ph-time-block">
+        <span class="ph-time-val">10</span>
+        <div class="ph-time-label">Min weekly review recommended</div>
+      </div>
+    </div>
+
+    <div class="card one-col">
+      <div class="card-head"><span class="card-head-icon">👤</span><span class="card-head-title">My Discharge Performance Dashboard — Dr. S. Menon · Last 30 Days</span></div>
+      <div class="card-body">
+        <div class="metrics-row">
+          <div class="metric-tile"><span class="mt-val">3.8h</span><div class="mt-label">Avg Discharge TAT vs EDT</div></div>
+          <div class="metric-tile"><span class="mt-val">4.2%</span><div class="mt-label">30-Day Unplanned Readmission Rate</div></div>
+          <div class="metric-tile"><span class="mt-val">6.1m</span><div class="mt-label">Avg Summary Completion Time</div></div>
+        </div>
+        <div class="card-head" style="background:var(--mist);border-radius:6px;padding:10px 14px;margin-bottom:10px;border:1px solid var(--border)"><span class="card-head-icon">🌡</span><span class="card-head-title">Department Bottleneck Heatmap — Avg Task Completion (min) by Day</span></div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:6px;font-family:'JetBrains Mono',monospace">Pharmacy Reconciliation · Past 4 Weeks</div>
+        <div class="heatmap">
+          <div class="hm-low"><span>22</span></div><div class="hm-mid"><span>31</span></div><div class="hm-high"><span>48</span></div><div class="hm-peak"><span>61</span></div><div class="hm-high"><span>44</span></div><div class="hm-mid"><span>28</span></div><div class="hm-low"><span>19</span></div>
+          <div class="hm-low"><span>20</span></div><div class="hm-mid"><span>33</span></div><div class="hm-high"><span>52</span></div><div class="hm-peak"><span>67</span></div><div class="hm-high"><span>49</span></div><div class="hm-low"><span>24</span></div><div class="hm-low"><span>17</span></div>
+          <div class="hm-low"><span>18</span></div><div class="hm-low"><span>27</span></div><div class="hm-mid"><span>41</span></div><div class="hm-high"><span>55</span></div><div class="hm-mid"><span>38</span></div><div class="hm-low"><span>21</span></div><div class="hm-low"><span>15</span></div>
+          <div class="hm-low"><span>23</span></div><div class="hm-mid"><span>34</span></div><div class="hm-high"><span>47</span></div><div class="hm-peak"><span>63</span></div><div class="hm-high"><span>42</span></div><div class="hm-low"><span>26</span></div><div class="hm-low"><span>18</span></div>
+        </div>
+        <div style="font-size:10px;color:var(--ink3);display:flex;gap:8px;margin-top:4px;font-family:'JetBrains Mono',monospace">
+          <span>Mon</span><span style="margin-left:auto">Tue</span><span style="margin-left:auto">Wed</span><span style="margin-left:auto">Thu ▲ Peak</span><span style="margin-left:auto">Fri</span><span style="margin-left:auto">Sat</span><span style="margin-left:auto">Sun</span>
+        </div>
+        <div class="alert alert-clinical" style="margin-top:14px;margin-bottom:0"><span class="alert-icon">💡</span><div>Thursday pharmacy bottleneck consistently delays discharge by 15–25 min above EDT. <strong>Suggested action:</strong> pre-alert pharmacy on Wednesday for complex poly-pharmacy patients. Share finding via <code>Export Quality Report</code> for NABH internal audit submission.</div></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">🔁</span><span class="card-head-title">Readmission Risk Intelligence</span></div>
+        <div class="card-body">
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">Patients readmitted within 30 days trigger a <code>Readmission Review</code> alert on your dashboard. Qdischarge provides a structured comparison of the discharge summary, medications, and follow-up compliance data — no manual chart pulling.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">Aggregate readmission patterns by ICD-10 code, ward, or discharge condition status. These insights directly support NABH Quality Indicator tracking and clinical audit cycles.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Root-cause review data is pre-formatted for hospital quality committee submission — export directly from the case record with one tap.</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-head-icon">🏆</span><span class="card-head-title">Benchmarking &amp; QTV Quality Philosophy</span></div>
+        <div class="card-body">
+          <div class="alert alert-clinical"><span class="alert-icon">🎯</span><div>QTV's quality-first ethos — the same rigor that defines Quench Techno Valley's talent and consulting work — is embedded in Qdischarge's analytics layer. Data empowers clinicians; it doesn't surveil them.</div></div>
+          <ul class="step-list">
+            <li class="step"><div class="step-marker"><span>1</span></div><div class="step-text">With administrator permissions, access anonymized peer benchmarks for your unit — your TAT and summary completion time vs. ward and hospital medians. A tool for self-directed improvement.</div></li>
+            <li class="step"><div class="step-marker"><span>2</span></div><div class="step-text">QTV's Qdischarge roadmap includes multi-hospital benchmarking across the QTV network — evidence-based best practice sharing across institutions at scale.</div></li>
+            <li class="step"><div class="step-marker"><span>3</span></div><div class="step-text">Recommended review cadence: <strong>Weekly</strong> — personal dashboard · <strong>Monthly</strong> — bottleneck heatmaps · <strong>Quarterly</strong> — readmission case reviews for quality committee.</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-block">
+      <div class="cb-icon">∞</div>
+      <div class="cb-body">
+        <h4>Phase 6 — Continuous Improvement Loop</h4>
+        <p>Phase 6 has no single completion state — it is a perpetual quality cycle. Qdischarge surfaces the data; clinical interpretation and action remain the physician's domain. <em>Empowering clinicians with technology so they can focus on care, not paperwork.</em> — QTV</p>
+      </div>
+    </div>
+
+    <div style="background:var(--ink2);border-radius:12px;padding:22px 26px;margin-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-m);margin-bottom:6px">Qdischarge · A QTV Product</div>
+        <div style="font-family:'Playfair Display',serif;font-size:20px;color:#fff;margin-bottom:4px">Workflow Complete</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.45)">Developed by Dinesh Velusamy &amp; Dr. JaiKanna · Quench Techno Valley, Bengaluru · <a href="https://qtvhr.com" style="color:var(--teal-m)">qtvhr.com</a></div>
+      </div>
+      <button class="next-btn" style="margin-top:0;white-space:nowrap" onclick="showPhase(1,document.querySelectorAll('.phase-btn')[0])">← Restart Workflow</button>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+let currentPhase = 1;
+const totalPhases = 6;
+
+function showPhase(n, btn) {
+  document.querySelectorAll('.phase-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('phase-' + n).classList.add('active');
+
+  const btns = document.querySelectorAll('.phase-btn');
+  btns.forEach((b, i) => {
+    b.classList.remove('active');
+    if (i + 1 < n) b.classList.add('done');
+    else b.classList.remove('done');
+  });
+  if (btn) btn.classList.add('active');
+
+  currentPhase = n;
+  document.querySelector('.content').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function simulateClearAll() {
+  const depts = ['pharm', 'nurs', 'bill', 'care'];
+  const labels = ['Meds Ready', 'Nursing Cleared', 'Billing Cleared', 'Care Plan Ready'];
+  depts.forEach((d, i) => {
+    setTimeout(() => {
+      const dot = document.getElementById('ds-' + d);
+      const txt = document.getElementById('ds-' + d + '-t');
+      if (dot) { dot.className = 'ds-dot done'; }
+      if (txt) { txt.textContent = labels[i]; txt.className = 'ds-state done'; }
+      // Update status rows
+      const rows = document.querySelectorAll('#phase-3 .status-row');
+      const map = { pharm: 0, nurs: 1, bill: 2, care: 3 };
+      if (rows[map[d]]) {
+        const badge = rows[map[d]].querySelector('.sr-badge');
+        if (badge) { badge.textContent = 'CLEARED'; badge.className = 'sr-badge cleared'; }
+      }
+    }, i * 600);
+  });
+}
+</script>
+</body>
+</html>
