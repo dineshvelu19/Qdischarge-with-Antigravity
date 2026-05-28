@@ -5,6 +5,11 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 export const createClient = (request: NextRequest) => {
+  if (!supabaseUrl || !supabaseKey) {
+    console.warn("⚠️ Middleware Helper Warn: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is missing.");
+    return NextResponse.next();
+  }
+
   // Create an unmodified response
   let supabaseResponse = NextResponse.next({
     request: {
@@ -13,8 +18,8 @@ export const createClient = (request: NextRequest) => {
   });
 
   const supabase = createServerClient(
-    supabaseUrl!,
-    supabaseKey!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {

@@ -1,192 +1,222 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
+
+/* ─── QDischarge Doctor Theme ─────────────────────────────────────────────────
+   Stack : Next.js 16 · Tailwind v4 · shadcn base-nova · CSS variables
+   Palette: Slate (authority) · Teal (primary action) · Amber (urgent only)
+            Warm Cream (surface) · Green (safe/cleared) · Red (critical)
+   ─────────────────────────────────────────────────────────────────────────── */
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-  --color-ink: #0b1221;
-  --color-ink2: #1e2d45;
-  --color-ink3: #3d5068;
-  --color-mist: #f4f7fb;
-  --color-mist2: #e8eef6;
-  --color-teal-d: #0a6e64;
-  --color-teal-m: #14b8a6;
-  --color-teal-l: #ccfbf1;
-  --color-blue-l: #dbeafe;
-  --color-amber-l: #fef3c7;
-  --color-red-l: #fee2e2;
-  --color-green-l: #d1fae5;
-  --color-purple-l: #ede9fe;
-}
-
-:root {
-  --font-sora: 'Sora', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --background: #0b1221;
-  --foreground: #f4f7fb;
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-body {
-  background-color: var(--background);
-  font-family: var(--font-sora);
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
-/* Micro-animations and custom utilities */
-.glass {
-  background: rgba(30, 45, 69, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.gradient-teal {
-  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-}
-
-.gradient-dark {
-  background: linear-gradient(180deg, #1e2d45 0%, #0b1221 100%);
-}
-
-.pulse-glow {
-  box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.5);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 8px rgba(20, 184, 166, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
-  }
-}
-
+/* ── 1. Design Tokens ─────────────────────────────────────────────────────── */
 @theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
+  /* Shadcn semantic tokens → Tailwind utilities (bg-background, text-primary …) */
+  --color-background:          var(--background);
+  --color-foreground:          var(--foreground);
+  --color-card:                var(--card);
+  --color-card-foreground:     var(--card-foreground);
+  --color-popover:             var(--popover);
+  --color-popover-foreground:  var(--popover-foreground);
+  --color-primary:             var(--primary);
+  --color-primary-foreground:  var(--primary-foreground);
+  --color-secondary:           var(--secondary);
+  --color-secondary-foreground:var(--secondary-foreground);
+  --color-muted:               var(--muted);
+  --color-muted-foreground:    var(--muted-foreground);
+  --color-accent:              var(--accent);
+  --color-accent-foreground:   var(--accent-foreground);
+  --color-destructive:         var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border:              var(--border);
+  --color-input:               var(--input);
+  --color-ring:                var(--ring);
+
+  /* QDischarge extended palette */
+  --color-warning:             var(--warning);
+  --color-warning-foreground:  var(--warning-foreground);
+  --color-success:             var(--success);
+  --color-success-foreground:  var(--success-foreground);
+  --color-info:                var(--info);
+  --color-info-foreground:     var(--info-foreground);
+
+  /* Sidebar tokens (used by shadcn sidebar component) */
+  --color-sidebar:             var(--sidebar);
+  --color-sidebar-foreground:  var(--sidebar-foreground);
+  --color-sidebar-primary:     var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-sidebar-accent:      var(--sidebar-accent);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-border:      var(--sidebar-border);
+  --color-sidebar-ring:        var(--sidebar-ring);
+
+  /* Border radius */
+  --radius-sm:  calc(var(--radius) - 4px);
+  --radius-md:  var(--radius);
+  --radius-lg:  calc(var(--radius) + 2px);
+  --radius-xl:  calc(var(--radius) + 6px);
+
+  /* Font families — loaded via next/font in layout.tsx */
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* ── 2. Light Mode — QDischarge Clinical Precision ───────────────────────── */
+@layer base {
+  :root {
+    /* Surfaces */
+    --background:           oklch(0.963 0.008 82);   /* warm cream #F7F4EF     */
+    --foreground:           oklch(0.220 0.030 220);  /* dark slate #1A2733     */
+
+    --card:                 oklch(1.000 0.000 0);    /* white                  */
+    --card-foreground:      oklch(0.220 0.030 220);
+
+    --popover:              oklch(1.000 0.000 0);
+    --popover-foreground:   oklch(0.220 0.030 220);
+
+    /* Primary — Deep Slate (navigation, headings, authority) */
+    --primary:              oklch(0.271 0.057 218);  /* #0B3D4F                */
+    --primary-foreground:   oklch(1.000 0.000 0);
+
+    /* Secondary — Teal soft (hover states, subtle fills) */
+    --secondary:            oklch(0.946 0.030 183);  /* #E0F5F2                */
+    --secondary-foreground: oklch(0.271 0.057 218);
+
+    /* Muted — Cream dark (data rows, alt table rows) */
+    --muted:                oklch(0.927 0.012 82);   /* #EDE9E1                */
+    --muted-foreground:     oklch(0.480 0.025 220);  /* #4A6070                */
+
+    /* Accent — Teal (primary CTA: Approve, Finalise, Save) */
+    --accent:               oklch(0.634 0.120 183);  /* #00A896                */
+    --accent-foreground:    oklch(1.000 0.000 0);
+
+    /* Destructive — Clinical Red (critical alerts, void actions) */
+    --destructive:          oklch(0.481 0.155 25);   /* #C0392B                */
+    --destructive-foreground: oklch(1.000 0.000 0);
+
+    /* Border & Input */
+    --border:               oklch(0.862 0.012 220);  /* #D0D8DC                */
+    --input:                oklch(0.862 0.012 220);
+    --ring:                 oklch(0.634 0.120 183);  /* teal focus ring        */
+
+    /* Extended semantic tokens */
+    --warning:              oklch(0.680 0.160 65);   /* amber #E8930A — urgent */
+    --warning-foreground:   oklch(1.000 0.000 0);
+    --success:              oklch(0.465 0.098 163);  /* green #1A7A5A — cleared*/
+    --success-foreground:   oklch(1.000 0.000 0);
+    --info:                 oklch(0.500 0.110 240);  /* blue — informational   */
+    --info-foreground:      oklch(1.000 0.000 0);
+
+    /* Sidebar — deeper slate for nav rail */
+    --sidebar:              oklch(0.220 0.050 218);  /* #0D2E3D                */
+    --sidebar-foreground:   oklch(0.900 0.010 200);
+    --sidebar-primary:      oklch(0.634 0.120 183);  /* teal active            */
+    --sidebar-primary-foreground: oklch(1.000 0.000 0);
+    --sidebar-accent:       oklch(0.300 0.050 218);  /* hover row              */
+    --sidebar-accent-foreground:  oklch(1.000 0.000 0);
+    --sidebar-border:       oklch(0.310 0.042 218);
+    --sidebar-ring:         oklch(0.634 0.120 183);
+
+    /* Radius */
+    --radius: 0.5rem;  /* 8px — tight & clinical */
+  }
+
+  /* ── 3. Dark Mode ──────────────────────────────────────────────────────── */
+  .dark {
+    --background:           oklch(0.160 0.030 218);  /* near-black slate       */
+    --foreground:           oklch(0.930 0.010 200);  /* off-white              */
+
+    --card:                 oklch(0.200 0.035 218);
+    --card-foreground:      oklch(0.930 0.010 200);
+
+    --popover:              oklch(0.200 0.035 218);
+    --popover-foreground:   oklch(0.930 0.010 200);
+
+    --primary:              oklch(0.634 0.120 183);  /* teal becomes primary   */
+    --primary-foreground:   oklch(0.160 0.030 218);
+
+    --secondary:            oklch(0.260 0.040 218);
+    --secondary-foreground: oklch(0.850 0.020 200);
+
+    --muted:                oklch(0.240 0.035 218);
+    --muted-foreground:     oklch(0.620 0.020 200);
+
+    --accent:               oklch(0.634 0.120 183);
+    --accent-foreground:    oklch(0.160 0.030 218);
+
+    --destructive:          oklch(0.560 0.180 25);
+    --destructive-foreground: oklch(1.000 0.000 0);
+
+    --border:               oklch(0.300 0.035 218);
+    --input:                oklch(0.300 0.035 218);
+    --ring:                 oklch(0.634 0.120 183);
+
+    --warning:              oklch(0.720 0.160 65);
+    --warning-foreground:   oklch(0.160 0.030 218);
+    --success:              oklch(0.560 0.110 163);
+    --success-foreground:   oklch(0.160 0.030 218);
+    --info:                 oklch(0.580 0.120 240);
+    --info-foreground:      oklch(0.160 0.030 218);
+
+    --sidebar:              oklch(0.140 0.030 218);
+    --sidebar-foreground:   oklch(0.870 0.015 200);
+    --sidebar-primary:      oklch(0.634 0.120 183);
+    --sidebar-primary-foreground: oklch(0.160 0.030 218);
+    --sidebar-accent:       oklch(0.220 0.040 218);
+    --sidebar-accent-foreground:  oklch(0.870 0.015 200);
+    --sidebar-border:       oklch(0.230 0.035 218);
+    --sidebar-ring:         oklch(0.634 0.120 183);
+  }
 }
 
+/* ── 4. Base Styles ───────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    font-feature-settings: "kern", "liga", "calt";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
   }
-  html {
-    @apply font-sans;
+
+  /* Clinical data values always use monospace */
+  .clinical-value {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  /* Elevated reading priority for critical values */
+  .value-critical  { @apply text-destructive font-semibold; }
+  .value-warning   { color: var(--warning); font-weight: 600; }
+  .value-normal    { @apply text-success font-medium; }
+  .value-pending   { @apply text-muted-foreground; }
+}
+
+/* ── 5. QDischarge Utility Classes ────────────────────────────────────────── */
+@layer utilities {
+  /* Status badge surfaces — use sparingly, prefer shadcn Badge variants */
+  .badge-discharged   { background: oklch(0.900 0.040 163); color: oklch(0.320 0.085 163); }
+  .badge-pending      { background: oklch(0.940 0.055 65);  color: oklch(0.450 0.130 65);  }
+  .badge-critical     { background: oklch(0.940 0.040 25);  color: oklch(0.380 0.140 25);  }
+  .badge-ready        { background: oklch(0.920 0.035 183); color: oklch(0.360 0.100 183); }
+  .badge-admitted     { background: oklch(0.900 0.012 218); color: oklch(0.320 0.045 218); }
+
+  /* Card accent borders — left-edge status indicator */
+  .card-accent-critical { border-left: 3px solid var(--destructive); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .card-accent-warning  { border-left: 3px solid var(--warning);     border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .card-accent-success  { border-left: 3px solid var(--success);     border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+
+  /* Nav highlight */
+  .nav-item-active {
+    @apply text-accent border-b-2;
+    border-color: var(--accent);
   }
 }
