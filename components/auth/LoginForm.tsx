@@ -42,8 +42,7 @@ export default function LoginForm() {
       if (signInError) {
         setError(signInError.message)
       } else {
-        router.push('/dashboard')
-        router.refresh()
+        window.location.href = '/dashboard'
       }
     } catch (err) {
       setError('An unexpected error occurred during sign in. Please try again.')
